@@ -8,16 +8,20 @@ USE `scada` ;
 -- -----------------------------------------------------
 -- Table `scada`.`NormalPackets`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `scada`.`NormalPackets` ;
+
 CREATE  TABLE IF NOT EXISTS `scada`.`NormalPackets` (
   `idNormalPackets` INT NOT NULL AUTO_INCREMENT ,
   `frame.number` INT NULL ,
-  `frame.time_relative` FLOAT NULL ,
-  `frame.time_delta_displayed` VARCHAR(45) NULL ,
+  `frame.time_relative` DOUBLE NULL ,
+  `frame.time_delta_displayed` DOUBLE NULL ,
   `frame.len` INT NULL ,
   `ip.proto` VARCHAR(45) NULL ,
   `ip.version` VARCHAR(45) NULL ,
   `ip.src` VARCHAR(45) NULL ,
+  `eth.src` VARCHAR(45) NULL ,
   `ip.dst` VARCHAR(45) NULL ,
+  `eth.dst` VARCHAR(45) NULL ,
   `mbtcp.modbus.unit_id` VARCHAR(45) NULL ,
   `tcp.srcport` VARCHAR(45) NULL ,
   `tcp.dstport` VARCHAR(45) NULL ,
@@ -27,10 +31,24 @@ CREATE  TABLE IF NOT EXISTS `scada`.`NormalPackets` (
   `mbtcp.modbus.func_code` VARCHAR(45) NULL ,
   `mbtcp.modbus.reference_num` VARCHAR(45) NULL ,
   `mbtcp.modbus.word_cnt` INT NULL ,
+  `respFrNumber` INT NULL ,
+  `respTimeRel` DOUBLE NULL ,
+  `respTimeDelta` DOUBLE NULL ,
+  `respLen` INT NULL ,
+  `respIpSrc` VARCHAR(45) NULL ,
+  `respEthSrc` VARCHAR(45) NULL ,
+  `respIpDest` VARCHAR(45) NULL ,
+  `respEthDest` VARCHAR(45) NULL ,
+  `respUnitId` VARCHAR(45) NULL ,
+  `respSrcport` VARCHAR(45) NULL ,
+  `respDstPort` VARCHAR(45) NULL ,
+  `respProtId` VARCHAR(45) NULL ,
+  `respTransId` VARCHAR(45) NULL ,
+  `respMbtcpLen` INT NULL ,
+  `respFuncCode` VARCHAR(45) NULL ,
   `mbtcp.modbus.data` VARCHAR(45) NULL ,
   `d` INT NULL ,
-  PRIMARY KEY (`idNormalPackets`) ,
-  UNIQUE INDEX `idNormalPackets_UNIQUE` (`idNormalPackets` ASC) )
+  PRIMARY KEY (`idNormalPackets`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci

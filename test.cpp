@@ -14,25 +14,31 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstring>
 
 
 using namespace std;
 
 
 int hexToDec(const string& str) {
-//int hexToDec(char str[]) {
-//long int hexToDec(char str[]) {
-
-//	int dec;
-	//long int dec;
-	//cout << str;
-	//cout << "\n";
-
-//	dec = strtol(str.c_str(), NULL, 16);
-	//cout << dec;
-	//cout << "\n";
 
 	return strtol(str.c_str(), NULL, 16);
+}
+
+int hexToDec1(string str) {
+
+	char delim[] = ":";
+	char *token;
+	token = strtok(&str[0], delim);
+	string decS;
+
+	while (token != NULL) {
+		cout<< token << "\n";
+		decS += token;
+		token = strtok( NULL, delim);
+	}
+	cout<< strtol(decS.c_str(), NULL, 16) <<endl;
+
 }
 
 int main() {
@@ -51,8 +57,18 @@ int main() {
 	//cout << strtol(str, NULL, 16);
 	//cout <<"\n";
 
-    cout << hexToDec(str);
-	cout << "\n";
+    cout << str << " " << hexToDec(str) << endl;
+    cout << "0054"<< " " << hexToDec("0054") << endl;
+    cout << "0075"<< " " << hexToDec("0075") << endl;
+    cout << "0050"<< " " << hexToDec("0050") << endl;
+    cout << "1214"<< " " << hexToDec("1214") << endl;
+    cout << "120a"<< " " << hexToDec("120a") << endl;
+    cout << "0acc"<< " " << hexToDec("0acc") << endl;
+
+	
+	cout << "-----------------------\n\n";
+	char inp[] = "00:54";
+	hexToDec1(inp);
 
 	return 0;
 }

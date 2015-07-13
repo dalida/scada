@@ -1,7 +1,17 @@
 #!/bin/sh
 
 
-STEM="mb2k"
-DATA_FILE="${STEM}.dat"
+DATA_FILE="100k.dat"
 
-echo $DATA_FILE
+echo "${DATA_FILE}\n"
+
+
+START=$(date +%s)
+
+
+
+
+
+END=$(date +%s)
+DIFF=$(( $END - $START ))
+echo "Time to process... ${DIFF}\n"
