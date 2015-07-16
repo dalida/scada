@@ -12,44 +12,72 @@ DB="scada"
 DB_USER="scada"
 DB_PASS="scada"
 STEM="mb2k"
+#STEM="sew"
 PCAP_FILE="${STEM}.pcap"
 DATA_FILE="${STEM}.dat"
 OUT_FILE="NormalPackets.dat"
 
 echo "\nBegin process...\n"
 
-echo "pcap file: "$PCAP_FILE
+if [ -f "$PCAP_FILE" ]
+then
 
-# extract MODBUS
-echo "\nExtracting from pcap file...\n"
-tshark -r $PCAP_FILE -T fields -E separator=, -t r -E header=n -e frame.number -e frame.time_relative -e frame.time_delta_displayed -e frame.len -e ip.proto -e ip.version -e ip.src -e eth.src -e ip.dst -e eth.dst -e mbtcp.modbus.unit_id -e tcp.srcport -e tcp.dstport -e mbtcp.prot_id -e mbtcp.trans_id  -e mbtcp.len -e mbtcp.modbus.func_code -e mbtcp.modbus.reference_num -e mbtcp.modbus.word_cnt -e mbtcp.modbus.data > $DATA_FILE
+	echo "pcap file: "$PCAP_FILE
 
-echo "Created data file: "$DATA_FILE
+    # extract MODBUS
+	echo "\nExtracting from pcap file...\n"
+	tshark -r $PCAP_FILE -T fields -E separator=, -t r -E header=n -e frame.number -e frame.time_relative -e frame.time_delta -e frame.len -e ip.proto -e ip.version -e ip.src -e eth.src -e ip.dst -e eth.dst -e mbtcp.modbus.unit_id -e tcp.srcport -e tcp.dstport -e mbtcp.prot_id -e mbtcp.trans_id  -e mbtcp.len -e mbtcp.modbus.func_code -e mbtcp.modbus.reference_num -e mbtcp.modbus.word_cnt -e mbtcp.modbus.data > $DATA_FILE
+	
+	if [ -f "$DATA_FILE" ]
+	then
 
-echo "\nScrubbing data and processing transformations...\n"
-# remove header line
-#sed -i '1d' $DATA_FILE
+		echo "Created data file: "$DATA_FILE
+		echo "\nScrubbing data and processing transformations...\n"
 
-# remove empty modbus data
-sed -i '/,,,,,$/d' ${DATA_FILE}
+        # remove first line
+        sed -i '1d' $DATA_FILE
 
-# convert resp.data from hex to decimal -- moved to processCSV
-#awk -F"," 'BEGIN{ OFS="," }{split($18,a,":");  $19=strtonum("0x"a[1]a[2]) ; print }' ${DATA_FILE} > ${OUT_FILE}.tmp
-#awk -F, '{$1="" FS $1;}1' OFS=, ${OUT_FILE}.tmp > ${OUT_FILE}
+        # remove empty modbus data
+		sed -i '/,,,,,$/d' ${DATA_FILE}
 
-# comment first line -- changed tshark:header=n
-#sed '1 s/^/--/' ${OUT_FILE}.tmp > ${OUT_FILE}  
+        # convert resp.data from hex to decimal -- moved to processCSV
+        #awk -F"," 'BEGIN{ OFS="," }{split($18,a,":");  $19=strtonum("0x"a[1]a[2]) ; print }' ${DATA_FILE} > ${OUT_FILE}.tmp
+        #awk -F, '{$1="" FS $1;}1' OFS=, ${OUT_FILE}.tmp > ${OUT_FILE}
 
-./processCSV $DATA_FILE $OUT_FILE > log.`date '+%Y%m%d%H%M'`.out
+        # comment first line -- changed tshark:header=n
+        #sed '1 s/^/--/' ${OUT_FILE}.tmp > ${OUT_FILE}  
 
-echo "Created file "$OUT_FILE
+		./processCSV $DATA_FILE $OUT_FILE > log.`date '+%Y%m%d%H%M'`.out
 
-echo "\nImporting into database...\n"
-# TODO: should be changed to run as superuser, ie, remove sudo
-sudo mysqlimport --fields-terminated-by=, --delete --user=$DB_USER --password=$DB_PASS --local $DB $OUT_FILE
+		if [ -f "$OUT_FILE" ]
+		then
 
-# cleanup
-#rm *.tmp
+		echo "Created file "$OUT_FILE
+
+		echo "\nImporting into database...\n"
+        # TODO: should be changed to run as superuser, ie, remove sudo
+        sudo mysqlimport --fields-terminated-by=, --delete --user=$DB_USER --password=$DB_PASS --local $DB $OUT_FILE
+
+        # cleanup
+        #rm *.tmp
+
+		else
+			
+			echo "$OUT_FILE not created and imported."
+
+		fi
+
+	else
+
+		echo "$DATA_FILE not extracted from $PCAP_FILE."
+
+	fi  # end DATA_FILE exists
+	
+else
+
+	echo "$PCAP_FILE does not exist."
+
+fi # end PCAP_FILE exists
 
 echo "\nDone!\n"
 
