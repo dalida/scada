@@ -43,7 +43,7 @@ then
 		sed -i 's/,mbtcp.modbus.data//' $HEADER
 		sed -i 's/\./_/g' $HEADER
 
-		EXTRA_HEADERS=",respFrNumber,respTimeRel,respTimeDelta,respLen,respIpSrc,respEthSrc,respIpDest,respEthDest,respUnitId,respSrcport,respDstPort,respProtId,respTransId,respMbtcpLen,respFuncCode,mbtcpModbusData,d"
+		EXTRA_HEADERS=",resp_frame_num,resp_time_rel,resp_time_delta,resp_Len,resp_ip_src,resp_eth_src,resp_ip_dest,resp_eth_dest,resp_unit_id,resp_src_port,resp_dst_port,resp_prot_id,resp_trans_id,resp_mbtcp_len,resp_func_code,mbtcp_modbus_data,d"
 		#sed -i 's/$/,d/' $HEADER
 		sed -i "s/$/${EXTRA_HEADERS}/" $HEADER
 
@@ -69,19 +69,19 @@ then
 		if [ -f "$IMP_FILE" ]
 		then
 
-		echo "Created file "$IMP_FILE
+			echo "Created file "$IMP_FILE
 
-		echo "\nImporting into database...\n"
-        # TODO: should be changed to run as superuser, ie, remove sudo
-		# mysqldb import
-        #sudo mysqlimport --fields-terminated-by=, --delete --user=$DB_USER --password=$DB_PASS --local $DB $OUT_FILE
-		# mongodb import
-		#echo -e "db.packets.remove({})" | mongo $MONGO_DB
-		echo "db.packets.remove({})" | mongo scadadb
-		mongoimport -d $MONGO_DB -c packets --type csv --file $IMP_FILE --headerline
+			echo "\nImporting into database...\n"
+            # TODO: should be changed to run as superuser, ie, remove sudo
+		    # mysqldb import
+            #sudo mysqlimport --fields-terminated-by=, --delete --user=$DB_USER --password=$DB_PASS --local $DB $OUT_FILE
+		    # mongodb import
+			echo "db.packets.remove({})" | mongo scadadb
+			mongoimport -d $MONGO_DB -c packets --type csv --file $IMP_FILE --headerline
 
-        # cleanup
-        #rm *.tmp
+            # cleanup
+            #rm *.tmp
+			rm $HEADER
 
 		else
 			

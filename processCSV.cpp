@@ -99,7 +99,7 @@ struct MbtcpTransStr {
     string respDstPort;
     char   respProtId;
     int    respTransId;
-    string respMbtcpLen;
+    int    respMbtcpLen;
     string respFuncCode;
 	string mbtcpModbusData;
 	int    d;
@@ -190,6 +190,7 @@ int mergeTrans() {
 					mbtcpTrans.respProtId    = packet.mbtcpProtId;
 					mbtcpTrans.respTransId   = packet.mbtcpTransId;
 					mbtcpTrans.respMbtcpLen  = packet.mbtcpLen;
+					cout<<"mbtcplength : "<< mbtcpTrans.respMbtcpLen << endl;
 					mbtcpTrans.respFuncCode  = packet.mbtcpModbusFuncCode;
 					mbtcpTrans.mbtcpModbusData = packet.mbtcpModbusData; 
 					mbtcpTrans.d = hexToDec(packet.mbtcpModbusData); 
