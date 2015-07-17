@@ -32,8 +32,8 @@ using namespace io;
 // ********************* VARIABLES ********************* 
 
 // debug
-//const bool check = 1;
-const bool check = 0;
+const bool check = 1;
+//const bool check = 0;
 
 string FILENAME;
 string CSVFILE;
@@ -215,40 +215,40 @@ int mergeTrans() {
 			
 			for( auto &i : mergedTrans ) {
 				cout<< "------------";
-				cout<< i.frameNumber << endl;
-				cout<< i.frameTimeRel << endl;
-				cout<< i.frameLen << endl;
-				cout<< i.ipProto << endl;
-				cout<< i.ipVersion << endl;
-				cout<< i.ipSrc << endl;
-				cout<< i.ethSrc << endl;
-				cout<< i.ipDst << endl;
-				cout<< i.ethDst << endl;
-				cout<< i.mbtcpModbusUnitId << endl;
-				cout<< i.tcpSrcPort << endl;
-				cout<< i.tcpDstPort << endl;
-				cout<< i.mbtcpProtId << endl;
-				cout<< i.mbtcpTransId << endl;
-				cout<< i.mbtcpLen << endl;
-				cout<< i.mbtcpModbusFuncCode << endl;
-				cout<< i.mbtcpModbusRefNum << endl;
-				cout<< i.mbtcpModbusWordCnt << endl;
-				cout<< i.respFrNumber << endl;
-				cout<< i.respTimeRel << endl;
-				cout<< i.respTimeDelta << endl;
-				cout<< i.respLen << endl;
-				cout<< i.respIpSrc << endl;
-				cout<< i.respEthSrc << endl;
-				cout<< i.respIpDest << endl;
-				cout<< i.respEthDest << endl;
-				cout<< i.respUnitId << endl;
-				cout<< i.respSrcport << endl;
-				cout<< i.respDstPort << endl;
-				cout<< i.respProtId << endl;
-				cout<< i.respTransId << endl;
-				cout<< i.respMbtcpLen << endl;
-				cout<< i.respFuncCode << endl;
-				cout<< i.mbtcpModbusData << endl;
+				cout<< i.frameNumber << "," << endl;
+				cout<< i.frameTimeRel << "," << endl;
+				cout<< i.frameLen << "," << endl;
+				cout<< i.ipProto << "," << endl;
+				cout<< i.ipVersion << "," << endl;
+				cout<< i.ipSrc << "," << endl;
+				cout<< i.ethSrc << "," << endl;
+				cout<< i.ipDst << "," << endl;
+				cout<< i.ethDst << "," << endl;
+				cout<< i.mbtcpModbusUnitId << "," << endl;
+				cout<< i.tcpSrcPort << "," << endl;
+				cout<< i.tcpDstPort << "," << endl;
+				cout<< i.mbtcpProtId << "," << endl;
+				cout<< i.mbtcpTransId << "," << endl;
+				cout<< i.mbtcpLen << "," << endl;
+				cout<< i.mbtcpModbusFuncCode << "," << endl;
+				cout<< i.mbtcpModbusRefNum << "," << endl;
+				cout<< i.mbtcpModbusWordCnt << "," << endl;
+				cout<< i.respFrNumber << "," << endl;
+				cout<< i.respTimeRel << "," << endl;
+				cout<< i.respTimeDelta << "," << endl;
+				cout<< i.respLen << "," << endl;
+				cout<< i.respIpSrc << "," << endl;
+				cout<< i.respEthSrc << "," << endl;
+				cout<< i.respIpDest << "," << endl;
+				cout<< i.respEthDest << "," << endl;
+				cout<< i.respUnitId << "," << endl;
+				cout<< i.respSrcport << "," << endl;
+				cout<< i.respDstPort << "," << endl;
+				cout<< i.respProtId << "," << endl;
+				cout<< i.respTransId << "," << endl;
+				cout<< i.respMbtcpLen << "," << endl;
+				cout<< i.respFuncCode << "," << endl;
+				cout<< i.mbtcpModbusData << "," << endl;
 				cout<< i.d;
 			}
 		} // end check
@@ -277,7 +277,8 @@ int createCSV() {
 
 			cout<< i.frameNumber << endl;
 
-			csvfile << "," << i.frameNumber;
+			//csvfile << "," << i.frameNumber; // comma before for mysqldb
+			csvfile << i.frameNumber;
 			csvfile << "," << i.frameTimeRel;
 			csvfile << "," << i.frameTimeDelta;
 			csvfile << "," << i.frameLen;
