@@ -7,18 +7,21 @@
 #
 # Process and load of MODBUS/TCP packet capture.
 #
+# TODO: change to classes
+#
 
 DB="scada"
 DB_USER="scada"
 DB_PASS="scada"
-STEM="mb2k"
-#STEM="sew"
+#STEM="mb2k"
+STEM="sew"
 PCAP_FILE="${STEM}.pcap"
 DATA_FILE="${STEM}.dat"
 OUT_FILE="${STEM}.out"
 IMP_FILE="${STEM}.imp"
 HEADER="header.txt"
 MONGO_DB="scadadb"
+DELIMIT="|"
 
 echo "\nBegin process...\n"
 

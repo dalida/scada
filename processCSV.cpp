@@ -86,7 +86,7 @@ struct MbtcpTransStr {
 	string mbtcpModbusFuncCode;
 	string mbtcpModbusRefNum;
 	int    mbtcpModbusWordCnt;
-    int    respFrNumber;
+    int    respFrameNumber;
     double respTimeRel;
     double respTimeDelta;
     int    respLen;
@@ -132,16 +132,18 @@ int mergeTrans() {
 
 	try {
 
+		//CSVReader<packetLen, trim_chars<' '>, no_quote_escape<'|'> > in( FILENAME.c_str() );
 		CSVReader<packetLen> in( FILENAME.c_str() );
 		while( in.read_row(
 				   packet.frameNumber, packet.frameTimeRel, packet.frameTimeDelta,
 				   packet.frameLen, packet.ipProto, packet.ipVersion, packet.ipSrc, packet.ethSrc,
-				   packet.ipDst, packet.ethDst, packet.mbtcpModbusUnitId, packet.tcpSrcPort, packet.tcpDstPort,
-				   packet.mbtcpProtId, packet.mbtcpTransId, packet.mbtcpLen, packet.mbtcpModbusFuncCode,
-				   packet.mbtcpModbusRefNum, packet.mbtcpModbusWordCnt, packet.mbtcpModbusData 
+				   packet.ipDst, packet.ethDst, packet.mbtcpModbusUnitId, packet.tcpSrcPort,
+				   packet.tcpDstPort,packet.mbtcpProtId, packet.mbtcpTransId, 
+				   packet.mbtcpLen, packet.mbtcpModbusFuncCode,packet.mbtcpModbusRefNum, 
+				   packet.mbtcpModbusWordCnt, packet.mbtcpModbusData 
 				   ) ) {
 
-			//cout<< "Current frame : " << packet.frameNumber<<endl;
+			cout<< "Current frame : " << packet.frameNumber<<endl;
 
 			// merge request and response packets
 			if( packet.mbtcpTransId == prevPacket.mbtcpTransId) {
@@ -149,7 +151,6 @@ int mergeTrans() {
 				//cout<<"mbtcpTransId: "<< packet.mbtcpTransId<<"\n";
 				// request packet has destination port 502
 				if( prevPacket.tcpDstPort == "502" ) {
-					//cout <<"   Frame request: "<< prevPacket.frameNumber <<"\n";
 
 					mbtcpTrans.frameNumber  = prevPacket.frameNumber;
 					mbtcpTrans.frameTimeRel = prevPacket.frameTimeRel;
@@ -176,8 +177,8 @@ int mergeTrans() {
 				if( packet.tcpSrcPort == "502" ) {
 					//cout<<"   Frame response: "<< packet.frameNumber<< "\n";
 					
-					mbtcpTrans.respFrNumber = packet.frameNumber;
-					mbtcpTrans.respTimeRel  = packet.frameTimeRel;
+					mbtcpTrans.respFrameNumber  = packet.frameNumber;
+					mbtcpTrans.respTimeRel   = packet.frameTimeRel;
 					mbtcpTrans.respTimeDelta = packet.frameTimeDelta;
 					mbtcpTrans.respLen       = packet.frameLen;
 					mbtcpTrans.respIpSrc     = packet.ipSrc;
@@ -234,7 +235,7 @@ int mergeTrans() {
 				cout<< i.mbtcpModbusFuncCode << "," << endl;
 				cout<< i.mbtcpModbusRefNum << "," << endl;
 				cout<< i.mbtcpModbusWordCnt << "," << endl;
-				cout<< i.respFrNumber << "," << endl;
+				cout<< i.respFrameNumber << "," << endl;
 				cout<< i.respTimeRel << "," << endl;
 				cout<< i.respTimeDelta << "," << endl;
 				cout<< i.respLen << "," << endl;
@@ -298,7 +299,7 @@ int createCSV() {
 			csvfile << "," << i.mbtcpModbusFuncCode;
 			csvfile << "," << i.mbtcpModbusRefNum;
 			csvfile << "," << i.mbtcpModbusWordCnt;
-			csvfile << "," << i.respFrNumber;
+			csvfile << "," << i.respFrameNumber;
 			csvfile << "," << i.respTimeRel;
 			csvfile << "," << i.respTimeDelta;
 			csvfile << "," << i.respLen;
