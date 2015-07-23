@@ -22,6 +22,7 @@
 #include <cstring>
 #include <fstream>
 #include <vector>
+#include <math.h>
 
 #include "lib/csv.h"
 
@@ -86,6 +87,7 @@ struct MbtcpTransStr {
 	string mbtcpModbusFuncCode;
 	string mbtcpModbusRefNum;
 	int    mbtcpModbusWordCnt;
+	int    frameSecond;
     int    respFrameNumber;
     double respTimeRel;
     double respTimeDelta;
@@ -102,6 +104,7 @@ struct MbtcpTransStr {
     int    respMbtcpLen;
     string respFuncCode;
 	string mbtcpModbusData;
+	int    respSecond;
 	int    d;
 } mbtcpTrans;
 
@@ -171,6 +174,7 @@ int mergeTrans() {
 					mbtcpTrans.mbtcpModbusFuncCode = prevPacket.mbtcpModbusFuncCode;
 					mbtcpTrans.mbtcpModbusRefNum   = prevPacket.mbtcpModbusRefNum;
 					mbtcpTrans.mbtcpModbusWordCnt  = prevPacket.mbtcpModbusWordCnt;
+					mbtcpTrans.frameSecond  = floor(prevPacket.frameTimeRel);
 				}
 				
 				// response packet has source port 502
@@ -191,9 +195,9 @@ int mergeTrans() {
 					mbtcpTrans.respProtId    = packet.mbtcpProtId;
 					mbtcpTrans.respTransId   = packet.mbtcpTransId;
 					mbtcpTrans.respMbtcpLen  = packet.mbtcpLen;
-					cout<<"mbtcplength : "<< mbtcpTrans.respMbtcpLen << endl;
 					mbtcpTrans.respFuncCode  = packet.mbtcpModbusFuncCode;
 					mbtcpTrans.mbtcpModbusData = packet.mbtcpModbusData; 
+					mbtcpTrans.respSecond    = floor(packet.frameTimeRel);
 					mbtcpTrans.d = hexToDec(packet.mbtcpModbusData); 
 
 					// add to all merged transactions
@@ -235,6 +239,7 @@ int mergeTrans() {
 				cout<< i.mbtcpModbusFuncCode << "," << endl;
 				cout<< i.mbtcpModbusRefNum << "," << endl;
 				cout<< i.mbtcpModbusWordCnt << "," << endl;
+				cout<< i.frameSecond << "," << endl;
 				cout<< i.respFrameNumber << "," << endl;
 				cout<< i.respTimeRel << "," << endl;
 				cout<< i.respTimeDelta << "," << endl;
@@ -251,6 +256,7 @@ int mergeTrans() {
 				cout<< i.respMbtcpLen << "," << endl;
 				cout<< i.respFuncCode << "," << endl;
 				cout<< i.mbtcpModbusData << "," << endl;
+				cout<< i.respSecond << "," << endl;
 				cout<< i.d;
 			}
 		} // end check
@@ -299,6 +305,7 @@ int createCSV() {
 			csvfile << "," << i.mbtcpModbusFuncCode;
 			csvfile << "," << i.mbtcpModbusRefNum;
 			csvfile << "," << i.mbtcpModbusWordCnt;
+			csvfile << "," << i.frameSecond;
 			csvfile << "," << i.respFrameNumber;
 			csvfile << "," << i.respTimeRel;
 			csvfile << "," << i.respTimeDelta;
@@ -315,6 +322,7 @@ int createCSV() {
 			csvfile << "," << i.respMbtcpLen;
 			csvfile << "," << i.respFuncCode;
 			csvfile << "," << i.mbtcpModbusData;
+			csvfile << "," << i.respSecond;
 			csvfile << "," << i.d;
 			csvfile << "\n";
 			

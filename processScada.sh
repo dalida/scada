@@ -15,10 +15,11 @@ DB_USER="scada"
 DB_PASS="scada"
 #STEM="mb2k"
 STEM="sew"
-PCAP_FILE="${STEM}.pcap"
-DATA_FILE="${STEM}.dat"
-OUT_FILE="${STEM}.out"
-IMP_FILE="${STEM}.imp"
+PCAP_FILE="data/${STEM}.pcap"
+DATA_FILE="data/${STEM}.dat"
+OUT_FILE="data/${STEM}.out"
+IMP_FILE="data/${STEM}.imp"
+LOG_FILE="log/log.`date '+%Y%m%d%H%M'`.out"
 HEADER="header.txt"
 MONGO_DB="scadadb"
 DELIMIT="|"
@@ -32,7 +33,7 @@ then
 
     # extract MODBUS
 	echo "\nExtracting from pcap file...\n"
-	tshark -r $PCAP_FILE -T fields -E separator=, -t r -E header=y -e frame.number -e frame.time_relative -e frame.time_delta -e frame.len -e ip.proto -e ip.version -e ip.src -e eth.src -e ip.dst -e eth.dst -e mbtcp.modbus.unit_id -e tcp.srcport -e tcp.dstport -e mbtcp.prot_id -e mbtcp.trans_id  -e mbtcp.len -e mbtcp.modbus.func_code -e mbtcp.modbus.reference_num -e mbtcp.modbus.word_cnt -e mbtcp.modbus.data > $DATA_FILE
+	tshark -R "tcp.port == 502" -r $PCAP_FILE -T fields -E separator=, -t r -E header=y -e frame.number -e frame.time_relative -e frame.time_delta -e frame.len -e ip.proto -e ip.version -e ip.src -e eth.src -e ip.dst -e eth.dst -e mbtcp.modbus.unit_id -e tcp.srcport -e tcp.dstport -e mbtcp.prot_id -e mbtcp.trans_id  -e mbtcp.len -e mbtcp.modbus.func_code -e mbtcp.modbus.reference_num -e mbtcp.modbus.word_cnt -e mbtcp.modbus.data > $DATA_FILE
 	
 	if [ -f "$DATA_FILE" ]
 	then
@@ -46,7 +47,7 @@ then
 		sed -i 's/,mbtcp.modbus.data//' $HEADER
 		sed -i 's/\./_/g' $HEADER
 
-		EXTRA_HEADERS=",resp_frame_num,resp_time_rel,resp_time_delta,resp_Len,resp_ip_src,resp_eth_src,resp_ip_dest,resp_eth_dest,resp_unit_id,resp_src_port,resp_dst_port,resp_prot_id,resp_trans_id,resp_mbtcp_len,resp_func_code,mbtcp_modbus_data,d"
+		EXTRA_HEADERS=",frame_second, resp_frame_num,resp_time_rel,resp_time_delta,resp_len,resp_ip_src,resp_eth_src,resp_ip_dest,resp_eth_dst,resp_unit_id,resp_src_port,resp_dst_port,resp_prot_id,resp_trans_id,resp_mbtcp_len,resp_func_code,mbtcp_modbus_data,resp_second, d"
 		#sed -i 's/$/,d/' $HEADER
 		sed -i "s/$/${EXTRA_HEADERS}/" $HEADER
 
@@ -63,6 +64,7 @@ then
         # comment first line -- changed tshark:header=n
         #sed '1 s/^/--/' ${OUT_FILE}.tmp > ${OUT_FILE}  
 
+#		./processCSV $DATA_FILE $OUT_FILE > log.`date '+%Y%m%d%H%M'`.out
 		./processCSV $DATA_FILE $OUT_FILE > log.`date '+%Y%m%d%H%M'`.out
 
 		# re-add header
@@ -88,7 +90,7 @@ then
 
 		else
 			
-			echo "$OUT_FILE not created and imported."
+			echo "$IMP_FILE not created and imported."
 
 		fi
 
