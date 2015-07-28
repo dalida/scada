@@ -114,7 +114,7 @@ vector<MbtcpTransStr> mergedTrans;
 
 // ********************* FUNCTIONS ********************* 
 
-// convert hexidecimal string to decimal
+// convert hexadecimal string to decimal
 int hexToDec(string str) {
 
 	string decS;
@@ -131,12 +131,13 @@ int hexToDec(string str) {
 }
 
 // merge transactions from pcap file
-int mergeTrans() {
+int mergeTrans(string file) {
 
 	try {
 
 		//CSVReader<packetLen, trim_chars<' '>, no_quote_escape<'|'> > in( FILENAME.c_str() );
-		CSVReader<packetLen> in( FILENAME.c_str() );
+//		CSVReader<packetLen> in( FILENAME.c_str() );
+		CSVReader<packetLen> in( file.c_str() );
 		while( in.read_row(
 				   packet.frameNumber, packet.frameTimeRel, packet.frameTimeDelta,
 				   packet.frameLen, packet.ipProto, packet.ipVersion, packet.ipSrc, packet.ethSrc,
@@ -273,12 +274,14 @@ int mergeTrans() {
 } // end mergeTrans()
 
 // create CSV file
-int createCSV() {
+//int createCSV() {
+int createCSV(string csv) {
 
 	try {
 
 		ofstream csvfile;
-		csvfile.open(CSVFILE);
+		//csvfile.open(CSVFILE);
+		csvfile.open(csv);
 
 		// write merged transactions to CSV file
 		for( auto &i : mergedTrans ) {
@@ -356,10 +359,12 @@ int main( int argc, char *argv[] ) {
 		CSVFILE  = argv[2];
 
 		cout<<"STEP1: Processing file - " + FILENAME + "\n";
-		mergeTrans();
+		//mergeTrans();
+		mergeTrans(FILENAME);
 
 		cout<<"STEP2: Creating CSV file - " + CSVFILE + "\n";
-		createCSV();
+		//createCSV();
+		createCSV(CSVFILE);
 	}
 
 } // end main
