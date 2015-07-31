@@ -1,0 +1,3 @@
+#!/usr/local/bin/r
+
+cat(pi^2,"\n")

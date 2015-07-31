@@ -7,22 +7,29 @@
 #
 # Process and load of MODBUS/TCP packet capture.
 #
-# TODO: change to classes
+# Currently, this process combines various tools:
+#    - bash: script to drive the whole process, as well as
+#        do some data munging
+#    - tshark: extracts various fields from pcap file
+#    - c: merge transactions
+#    - R: calculate stats and create json
 #
 
-DB="scada"
-DB_USER="scada"
-DB_PASS="scada"
-#STEM="mb2k"
 STEM="sew"
+
 PCAP_FILE="data/${STEM}.pcap"
 DATA_FILE="data/${STEM}.dat"
 OUT_FILE="data/${STEM}.out"
 IMP_FILE="data/${STEM}.imp"
 LOG_FILE="log/log.`date '+%Y%m%d%H%M'`.out"
 HEADER="header.txt"
+
+# db credientials
 MONGO_DB="scadadb"
-DELIMIT="|"
+DB="scada"
+DB_USER="scada"
+DB_PASS="scada"
+IMP=0
 
 echo "\nBegin process...\n"
 
@@ -41,21 +48,35 @@ then
 		echo "Created data file: "$DATA_FILE
 		echo "\nScrubbing data and processing transformations...\n"
 
-        # modify header (keep for mongodb)
-        #sed -i '1,2d' $DATA_FILE
+		# remove header
+		# save headers for later
         sed '2,$d' $DATA_FILE > $HEADER
-		sed -i 's/,mbtcp.modbus.data//' $HEADER
-		sed -i 's/\./_/g' $HEADER
-
-		EXTRA_HEADERS=",frame_second, resp_frame_num,resp_time_rel,resp_time_delta,resp_len,resp_ip_src,resp_eth_src,resp_ip_dest,resp_eth_dst,resp_unit_id,resp_src_port,resp_dst_port,resp_prot_id,resp_trans_id,resp_mbtcp_len,resp_func_code,mbtcp_modbus_data,resp_second, d"
-		#sed -i 's/$/,d/' $HEADER
-		sed -i "s/$/${EXTRA_HEADERS}/" $HEADER
-
-		# remove header for processing
-		sed -i '1,2d' $DATA_FILE
 
         # cleanup data
 		sed -i '/,,,,,$/d' ${DATA_FILE}
+
+		# remove header for processing
+		sed '1,2d' $DATA_FILE > ${DATA_FILE}.tmp
+
+		# this is where the merging happens
+		./processCSV ${DATA_FILE}.tmp $OUT_FILE > $LOG_FILE
+
+		# re-add extended header to mergedSewDT
+		# no modbus data in request
+		sed -i 's/mbtcp\.modbus\.data$//' $HEADER
+
+		EXTRA_HEADERS="frame.second,respFrameNumber,respTimeRel,respTimeDelta,respLen,respIpSrc,respEthSrc,respIpDest,respEthDst,respUnitId,respSrcPort,respDstPort,respProtId,respTransId,respMbtcpLen,respFuncCode,mbtcpModbusData,respSecond,d"
+		sed -i "s/$/${EXTRA_HEADERS}/" $HEADER
+
+		cat $HEADER > $IMP_FILE
+		cat $OUT_FILE >> $IMP_FILE
+
+        # modify header for mongodb because it doesn't like periods
+		#sed -i 's/,mbtcp.modbus.data//' $HEADER
+		#sed -i 's/\./_/g' $HEADER
+
+		# headers for mongodb
+		#EXTRA_HEADERS=",frame_second, resp_frame_num,resp_time_rel,resp_time_delta,resp_len,resp_ip_src,resp_eth_src,resp_ip_dest,resp_eth_dst,resp_unit_id,resp_src_port,resp_dst_port,resp_prot_id,resp_trans_id,resp_mbtcp_len,resp_func_code,mbtcp_modbus_data,resp_second, d"
 
         # convert resp.data from hex to decimal -- moved to processCSV
         #awk -F"," 'BEGIN{ OFS="," }{split($18,a,":");  $19=strtonum("0x"a[1]a[2]) ; print }' ${DATA_FILE} > ${OUT_FILE}.tmp
@@ -64,14 +85,12 @@ then
         # comment first line -- changed tshark:header=n
         #sed '1 s/^/--/' ${OUT_FILE}.tmp > ${OUT_FILE}  
 
-#		./processCSV $DATA_FILE $OUT_FILE > log.`date '+%Y%m%d%H%M'`.out
-		./processCSV $DATA_FILE $OUT_FILE > log.`date '+%Y%m%d%H%M'`.out
+		# calculate stats and create JSON 
+		echo "Calculating stats and creating JSON config files...\n"
+		r/createJS.r
 
-		# re-add header
-		cat $HEADER > $IMP_FILE
-		cat $OUT_FILE >> $IMP_FILE
-
-		if [ -f "$IMP_FILE" ]
+		# import into db of choice
+		if [ $IMP == 1 && -f "$IMP_FILE" ]
 		then
 
 			echo "Created file "$IMP_FILE
@@ -80,13 +99,18 @@ then
             # TODO: should be changed to run as superuser, ie, remove sudo
 		    # mysqldb import
             #sudo mysqlimport --fields-terminated-by=, --delete --user=$DB_USER --password=$DB_PASS --local $DB $OUT_FILE
+
 		    # mongodb import
 			echo "db.packets.remove({})" | mongo scadadb
 			mongoimport -d $MONGO_DB -c packets --type csv --file $IMP_FILE --headerline
 
             # cleanup
-            #rm *.tmp
+			#echo "\nCleaning up..."
 			rm $HEADER
+			#rm ${DATA_FILE}
+			rm ${DATA_FILE}.tmp
+			rm ${OUT_FILE}
+			#rm ${IMP_FILE}
 
 		else
 			
