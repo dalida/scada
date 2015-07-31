@@ -136,7 +136,6 @@ int mergeTrans(string file) {
 	try {
 
 		//CSVReader<packetLen, trim_chars<' '>, no_quote_escape<'|'> > in( FILENAME.c_str() );
-//		CSVReader<packetLen> in( FILENAME.c_str() );
 		CSVReader<packetLen> in( file.c_str() );
 		while( in.read_row(
 				   packet.frameNumber, packet.frameTimeRel, packet.frameTimeDelta,
@@ -146,8 +145,6 @@ int mergeTrans(string file) {
 				   packet.mbtcpLen, packet.mbtcpModbusFuncCode,packet.mbtcpModbusRefNum, 
 				   packet.mbtcpModbusWordCnt, packet.mbtcpModbusData 
 				   ) ) {
-
-			cout<< "Current frame : " << packet.frameNumber<<endl;
 
 			// merge request and response packets
 			if( packet.mbtcpTransId == prevPacket.mbtcpTransId) {
