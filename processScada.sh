@@ -31,8 +31,8 @@ MONGO_DB="scadadb"
 DB="scada"
 DB_USER="scada"
 DB_PASS="scada"
-#IMP=0
-IMP=1
+IMP=0
+#IMP=1
 
 # FUNCTIONS #
 
