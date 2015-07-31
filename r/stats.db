@@ -1,0 +1,74 @@
+{
+"SOURCE_DEST_FUNCTION_FREQUENCY" : [
+  "192.168.12.117/192.168.12.252/4" : {
+    "IP_SRC" : "192.168.12.117",
+    "IP_DST" : "192.168.12.252",
+    "MODBUS_FUNCTION" : "4 ",
+    "FREQUENCY" : "33.170213 "
+  }
+],
+"SOURCE_DEST_FUNCTION_REFERENCE_FREQUENCY" : [
+  "192.168.12.117/192.168.12.252/4/0" : {
+    "IP_SRC" : "192.168.12.117",
+    "IP_DST" : "192.168.12.252",
+    "MODBUS_FUNCTION" : "4 ",
+    "MODBUS_REFERENCE" : "0 ",
+    "FREQUENCY" : "13.715621 "
+  },
+  "192.168.12.117/192.168.12.252/4/1" : {
+    "IP_SRC" : "192.168.12.117",
+    "IP_DST" : "192.168.12.252",
+    "MODBUS_FUNCTION" : "4 ",
+    "MODBUS_REFERENCE" : "1 ",
+    "FREQUENCY" : "15.649333 "
+  },
+  "192.168.12.117/192.168.12.252/4/2" : {
+    "IP_SRC" : "192.168.12.117",
+    "IP_DST" : "192.168.12.252",
+    "MODBUS_FUNCTION" : "4 ",
+    "MODBUS_REFERENCE" : "2 ",
+    "FREQUENCY" : "1.961230 "
+  },
+  "192.168.12.117/192.168.12.252/4/3" : {
+    "IP_SRC" : "192.168.12.117",
+    "IP_DST" : "192.168.12.252",
+    "MODBUS_FUNCTION" : "4 ",
+    "MODBUS_REFERENCE" : "3 ",
+    "FREQUENCY" : "1.971774 "
+  }
+],
+"MODBUS_FUNCTION_REFERENCE_DATA_STATS" : [
+  "4/0" : {
+    "MODBUS_FUNCTION" : "4",
+    "MODBUS_REFERENCE" : "0",
+    "D_MIN" : "112.00 ",
+    "D_MEAN" : "112.00 ",
+    "D_STD_DEV" : "0.00 ",
+    "D_MAX" : "112.00 "
+  },
+  "4/1" : {
+    "MODBUS_FUNCTION" : "4",
+    "MODBUS_REFERENCE" : "1",
+    "D_MIN" : "64.00 ",
+    "D_MEAN" : "81.31 ",
+    "D_STD_DEV" : "3.89 ",
+    "D_MAX" : "84.00 "
+  },
+  "4/2" : {
+    "MODBUS_FUNCTION" : "4",
+    "MODBUS_REFERENCE" : "2",
+    "D_MIN" : "4758.00 ",
+    "D_MEAN" : "5005.44 ",
+    "D_STD_DEV" : "179.37 ",
+    "D_MAX" : "5242.00 "
+  },
+  "4/3" : {
+    "MODBUS_FUNCTION" : "4",
+    "MODBUS_REFERENCE" : "3",
+    "D_MIN" : "0.00 ",
+    "D_MEAN" : "3392.65 ",
+    "D_STD_DEV" : "2074.52 ",
+    "D_MAX" : "6890.00 "
+  }
+]
+}
