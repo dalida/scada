@@ -152,7 +152,7 @@ function cleanup() {
 	rm ${OUT_FILE}
 	rm ${IMP_FILE}
 
-}
+} # end cleanup
 
 # MAIN #
 
@@ -177,16 +177,3 @@ fi
 cleanup
 
 printf "\nDone!\n\n"
-
-## extra stuff ##
-# modify header for mongodb because it doesn't like periods
-#sed -i 's/,mbtcp.modbus.data//' $HEADER
-#sed -i 's/\./_/g' $HEADER
-
-# convert resp.data from hex to decimal -- moved to processCSV
-#awk -F"," 'BEGIN{ OFS="," }{split($18,a,":");  $19=strtonum("0x"a[1]a[2]) ; print }' ${DATA_FILE} > ${OUT_FILE}.tmp
-#awk -F, '{$1="" FS $1;}1' OFS=, ${OUT_FILE}.tmp > ${OUT_FILE}
-
-# comment first line -- changed tshark:header=n
-#sed '1 s/^/--/' ${OUT_FILE}.tmp > ${OUT_FILE}  
-
