@@ -17,7 +17,8 @@
 
 # VARIABLES #
 
-STEM="sew"
+#STEM="sew"
+STEM="normal"
 
 PCAP_FILE="data/${STEM}.pcap"
 DATA_FILE="data/${STEM}.dat"
@@ -27,12 +28,12 @@ LOG_FILE="log/log.`date '+%Y%m%d%H%M'`.out"
 HEADER="header.txt"
 
 # db credientials
+IMP=0  # not doing a db import!
+#IMP=1
 MONGO_DB="scadadb"
 DB="scada"
 DB_USER="scada"
 DB_PASS="scada"
-IMP=0
-#IMP=1
 
 # FUNCTIONS #
 
@@ -117,6 +118,7 @@ function gen_configs() {
 	if [ $? -ne 0 ]
 	then
 		printf "\ngen_configs: Error generating config files.\n"
+		exit 1
 	fi
 
 } # end gen_configs
@@ -156,7 +158,23 @@ function cleanup() {
 
 # MAIN #
 
+numargs=("$#")
+args=("$@")
+
+#echo arguments to the shell
+
+echo number of args.... $numargs
+echo 'args=("$@"); echo ${args[0]} '
+echo ${args[0]} ' -> args=("$@"); echo ${args[1]} '
+
 printf "\nBegin process...\n"
+
+if [ $numargs -ne 1 ]
+then
+  clean=0
+fi
+
+echo to clean or not $clean
 
 extract_pcap
 
@@ -174,6 +192,9 @@ then
 	import_db
 fi
 
-cleanup
+if [ $clean -eq 1 ]
+then
+	cleanup
+fi
 
 printf "\nDone!\n\n"

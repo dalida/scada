@@ -4,7 +4,13 @@
     "IP_SRC" : "192.168.12.117",
     "IP_DST" : "192.168.12.252",
     "MODBUS_FUNCTION" : "4 ",
-    "FREQUENCY" : "33.170213 "
+    "FREQUENCY" : "33.174202 "
+  },
+  "192.168.12.252/192.168.12.117/4" : {
+    "IP_SRC" : "192.168.12.252",
+    "IP_DST" : "192.168.12.117",
+    "MODBUS_FUNCTION" : "4 ",
+    "FREQUENCY" : "33.127490 "
   }
 ],
 "SOURCE_DEST_FUNCTION_REFERENCE_FREQUENCY" : [
@@ -20,14 +26,14 @@
     "IP_DST" : "192.168.12.252",
     "MODBUS_FUNCTION" : "4 ",
     "MODBUS_REFERENCE" : "1 ",
-    "FREQUENCY" : "15.649333 "
+    "FREQUENCY" : "15.652000 "
   },
   "192.168.12.117/192.168.12.252/4/2" : {
     "IP_SRC" : "192.168.12.117",
     "IP_DST" : "192.168.12.252",
     "MODBUS_FUNCTION" : "4 ",
     "MODBUS_REFERENCE" : "2 ",
-    "FREQUENCY" : "1.961230 "
+    "FREQUENCY" : "1.962567 "
   },
   "192.168.12.117/192.168.12.252/4/3" : {
     "IP_SRC" : "192.168.12.117",

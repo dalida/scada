@@ -8,15 +8,10 @@ datafile <- "~/scada/data/sew.dat"
 sewModbusDT <- as.data.table(
   read.csv(datafile, header=TRUE,
            stringsAsFactors=T
-           ))
-
-# import merged transactions
-mergedfile <- "~/scada/data/sew.imp"
-
-mergedSewDT <- as.data.table(
-  read.csv(mergedfile, header=TRUE,
-           stringsAsFactors=T
   ))
+
+sewModbusDT$frame.second <- floor(sewModbusDT$frame.time_relative)
+
 
 #### GENERATE WHITE LIST ####
 # Sources
@@ -47,66 +42,83 @@ txt2 <- sprintf('"IP_DST" : [%s]',
 du <- unique(sewModbusDT,
              by=c("ip.dst",
                   "mbtcp.modbus.unit_id"))[
-                    ,.(IP_MODBUS_UNIT_ID = paste(ip.dst,
+                    ,.(IP_DST_MODBUS_UNIT_ID = paste(ip.dst,
                                                  mbtcp.modbus.unit_id, sep="/"),
                        ip.dst,
                        mbtcp.modbus.unit_id)]
 
-txt3 <- sprintf('"IP_MODBUS_UNIT_ID" : [\n%s\n]',
+txt3 <- sprintf('"IP_DST_MODBUS_UNIT_ID" : [\n%s\n]',
                 paste0(
                   with(du,
-                       sprintf('  "%s" : {\n   "IP_ADDR" : "%s",\n   "UNIT_ID" : "%s "\n  }',
-                               IP_MODBUS_UNIT_ID, ip.dst, mbtcp.modbus.unit_id)),
+                       sprintf('  "%s" : {\n   "IP_DST" : "%s",\n   "UNIT_ID" : "%s "\n  }',
+                               IP_DST_MODBUS_UNIT_ID, ip.dst, mbtcp.modbus.unit_id)),
                   collapse = ",\n"))
 
 # Source / MAC Address
 #smac <- sewModbusDT[,.(count=.N), by=.(ip.src, eth.src)]
 smac <- unique(sewModbusDT,
                by=c("ip.src", "eth.src"))[
-                 ,.(IP_ADDR_MAC_ADDR = paste(ip.src, eth.src, sep="/"),
+                 ,.(IP_SRC_MAC_ADDR = paste(ip.src, eth.src, sep="/"),
                     ip.src,
                     eth.src)]
 
-txt4 <- sprintf('"IP_ADDR_MAC_ADDR" : [\n%s\n]',
+txt4 <- sprintf('"IP_SRC_MAC_ADDR" : [\n%s\n]',
                 paste0(
                   with(smac,
-                       sprintf('  "%s" : {\n    "IP_ADDR" : "%s",\n   "MAC_ADDR" : "%s "\n  }',
-                               IP_ADDR_MAC_ADDR, ip.src, eth.src)),
+                       sprintf('  "%s" : {\n    "IP_SRC" : "%s",\n   "MAC_ADDR" : "%s "\n  }',
+                               IP_SRC_MAC_ADDR, ip.src, eth.src)),
                   collapse = ",\n"))
 
 # Source / Function Code
-sfunc <- sewModbusDT[,.(IP_ADDR_MOD_FUNC = paste(ip.src, mbtcp.modbus.func_code, sep="/"))
+sfunc <- sewModbusDT[,.(IP_SRC_MOD_FUNC = paste(ip.src, mbtcp.modbus.func_code, sep="/"))
                      , by=.(ip.src, mbtcp.modbus.func_code)][
-                       ,.(IP_ADDR_MOD_FUNC, ip.src,
+                       ,.(IP_SRC_MOD_FUNC, ip.src,
                           mbtcp.modbus.func_code)]
 
-txt5 <- sprintf('"IP_ADDR_MODBUS_FUNC" : [\n%s\n]',
+txt5 <- sprintf('"IP_SRC_MODBUS_FUNC" : [\n%s\n]',
                 paste0(
                   with(sfunc,
-                       sprintf('  "%s" : {\n    "IP_ADDR" : "%s",\n   "MODBUS_FUNCTION" : "%s "\n  }',
-                               IP_ADDR_MOD_FUNC, ip.src, mbtcp.modbus.func_code)),
+                       sprintf('  "%s" : {\n    "IP_SRC" : "%s",\n   "MODBUS_FUNCTION" : "%s "\n  }',
+                               IP_SRC_MOD_FUNC, ip.src, mbtcp.modbus.func_code)),
                   collapse = ",\n"))
 
+#############################################################################################################
+
+reqs <- sewModbusDT[mbtcp.modbus.reference_num != '']
+resp <- sewModbusDT[is.na(mbtcp.modbus.reference_num)]
+
+#############################################################################################################
+
+# import merged transactions
+mergedfile <- "~/scada/data/sew.imp"
+
+mergedSewDT <- as.data.table(
+  read.csv(mergedfile, header=TRUE,
+           stringsAsFactors=T
+  ))
+
+
 # Source / Function Code
-sfuncRef <- mergedSewDT[,.(IP_ADDR_MOD_FUNC_REF = paste(ip.src, mbtcp.modbus.func_code,
+#sfuncRef <- mergedSewDT[,.(IP_SRC_MOD_FUNC_REF = paste(ip.src, mbtcp.modbus.func_code,
+sfuncRef <- reqs[,.(IP_SRC_MOD_FUNC_REF = paste(ip.src, mbtcp.modbus.func_code,
                                                         mbtcp.modbus.reference_num, sep="/"))
                         , by=.(ip.src, mbtcp.modbus.func_code, mbtcp.modbus.reference_num)][
-                          ,.(IP_ADDR_MOD_FUNC_REF,
+                          ,.(IP_SRC_MOD_FUNC_REF,
                              ip.src,
                              mbtcp.modbus.func_code,
                              mbtcp.modbus.reference_num)][order(mbtcp.modbus.reference_num)]
 
-txt6 <- sprintf('"IP_ADDR_MODBUS_FUNC_REF" : [\n%s\n]',
+txt6 <- sprintf('"IP_SRC_MODBUS_FUNC_REF" : [\n%s\n]',
                 paste0(
                   with(sfuncRef,
                        sprintf('  "%s" : {\n    "IP_SRC" : "%s",\n     "MODBUS_FUNCTION" : "%s ",\n    "MODBUS_REFERENCE" : "%s "\n  }',
-                               IP_ADDR_MOD_FUNC_REF, ip.src, mbtcp.modbus.func_code, mbtcp.modbus.reference_num)),
+                               IP_SRC_MOD_FUNC_REF, ip.src, mbtcp.modbus.func_code, mbtcp.modbus.reference_num)),
                   collapse = ",\n"))
 
 whitelist <- sprintf('{\n%s\n}',
                      paste(txt1, txt2, txt3, txt4, txt5, txt6, sep=",\n")
 )
-write(whitelist, file="r/whitelist.db")
+write(whitelist, file="~/scada/r/whitelist.db")
 rm(txt1, txt2, txt3, txt4, txt5, txt6, srcs, dst, du, smac, sfunc, sfuncRef, whitelist)
 
 # Packet Analysis
@@ -116,7 +128,7 @@ rm(txt1, txt2, txt3, txt4, txt5, txt6, srcs, dst, du, smac, sfunc, sfuncRef, whi
 avgPkt <- mergedSewDT[,.(frequency=.N),by=frame.second][,mean(frequency)]
 
 ### Frequency per second, per source/dest ip and function code
-srcFuncFreq <- mergedSewDT[,.(frequency=.N),
+srcFuncFreq <- sewModbusDT[,.(frequency=.N),
                            by =.(ip.src, ip.dst, mbtcp.modbus.func_code,
                                  frame.second)][
                                    order(ip.src, ip.dst, mbtcp.modbus.func_code,
@@ -133,13 +145,15 @@ txt1 <- sprintf('"SOURCE_DEST_FUNCTION_FREQUENCY" : [\n%s\n]',
                   collapse = ",\n"))
 
 # Frequency per second, per source/dest ip, function code, and reference num
-srcFuncRefFreq <- mergedSewDT[,.(frequency=.N),
+#srcFuncRefFreq <- mergedSewDT[,.(frequency=.N),
+srcFuncRefFreq <- reqs[,.(frequency=.N),
                               by =.(ip.src, ip.dst, mbtcp.modbus.func_code, mbtcp.modbus.reference_num,
                                     frame.second)][
                                       order(ip.src, ip.dst, mbtcp.modbus.func_code, mbtcp.modbus.reference_num,
                                             frame.second)][,.(avgFrequncySec=mean(frequency)),
                                                            by=.(ip.src, ip.dst, mbtcp.modbus.func_code,
                                                                 mbtcp.modbus.reference_num)]
+
 
 txt2 <- sprintf('"SOURCE_DEST_FUNCTION_REFERENCE_FREQUENCY" : [\n%s\n]',
                 paste0(
@@ -169,6 +183,6 @@ txt3 <- sprintf('"MODBUS_FUNCTION_REFERENCE_DATA_STATS" : [\n%s\n]',
 stats <- sprintf('{\n%s\n}',
                  paste(txt1, txt2, txt3, sep=",\n")
 )
-write(stats, file="r/stats.db")
+write(stats, file="~/scada/r/stats.db")
 rm(txt1, txt2, txt3,srcFuncFreq, srcFuncRefFreq, avgPkt, stats)
 rm(modbusStats, datafile, mergedfile, sewModbusDT, mergedSewDT)
