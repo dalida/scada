@@ -3,20 +3,20 @@
 library(data.table)
 
 # import datafile
-datafile <- "~/scada/data/sew.dat"
+datafile <- "~/scada/data/normal.dat"
 
-sewModbusDT <- as.data.table(
+normalModbusDT <- as.data.table(
   read.csv(datafile, header=TRUE,
            stringsAsFactors=T
   ))
 
-sewModbusDT$frame.second <- floor(sewModbusDT$frame.time_relative)
+normalModbusDT$frame.second <- floor(normalModbusDT$frame.time_relative)
 
 
 #### GENERATE WHITE LIST ####
 # Sources
-# srcs <- sewModbusDT[,.(count=.N), by=.(ip.src)]
-srcs  <- unique(sewModbusDT, by=c("ip.src"))[,.(ip.src)]
+# srcs <- normalModbusDT[,.(count=.N), by=.(ip.src)]
+srcs  <- unique(normalModbusDT, by=c("ip.src"))[,.(ip.src)]
 srcs
 txt1 <- sprintf('"IP_SRC" : [%s]',
                 paste0(
@@ -26,8 +26,8 @@ txt1 <- sprintf('"IP_SRC" : [%s]',
                   collapse = ","))
 
 # Destinations
-# dst <- sewModbusDT[,.(count=.N), by=.(ip.dst)]
-dst <- unique(sewModbusDT, by=c("ip.dst"))[,.(ip.dst)]
+# dst <- normalModbusDT[,.(count=.N), by=.(ip.dst)]
+dst <- unique(normalModbusDT, by=c("ip.dst"))[,.(ip.dst)]
 dst
 txt2 <- sprintf('"IP_DST" : [%s]',
                 paste0(
@@ -37,9 +37,9 @@ txt2 <- sprintf('"IP_DST" : [%s]',
                   collapse = ","))
 
 # Destination / UnitID
-# du <- sewModbusDT[,.(ip.dst.unit_id = paste(ip.dst, mbtcp.modbus.unit_id, sep="/")),
+# du <- normalModbusDT[,.(ip.dst.unit_id = paste(ip.dst, mbtcp.modbus.unit_id, sep="/")),
 #                   by=.(ip.dst, mbtcp.modbus.unit_id)]
-du <- unique(sewModbusDT,
+du <- unique(normalModbusDT,
              by=c("ip.dst",
                   "mbtcp.modbus.unit_id"))[
                     ,.(IP_DST_MODBUS_UNIT_ID = paste(ip.dst,
@@ -55,8 +55,8 @@ txt3 <- sprintf('"IP_DST_MODBUS_UNIT_ID" : [\n%s\n]',
                   collapse = ",\n"))
 
 # Source / MAC Address
-#smac <- sewModbusDT[,.(count=.N), by=.(ip.src, eth.src)]
-smac <- unique(sewModbusDT,
+#smac <- normalModbusDT[,.(count=.N), by=.(ip.src, eth.src)]
+smac <- unique(normalModbusDT,
                by=c("ip.src", "eth.src"))[
                  ,.(IP_SRC_MAC_ADDR = paste(ip.src, eth.src, sep="/"),
                     ip.src,
@@ -70,7 +70,7 @@ txt4 <- sprintf('"IP_SRC_MAC_ADDR" : [\n%s\n]',
                   collapse = ",\n"))
 
 # Source / Function Code
-sfunc <- sewModbusDT[,.(IP_SRC_MOD_FUNC = paste(ip.src, mbtcp.modbus.func_code, sep="/"))
+sfunc <- normalModbusDT[,.(IP_SRC_MOD_FUNC = paste(ip.src, mbtcp.modbus.func_code, sep="/"))
                      , by=.(ip.src, mbtcp.modbus.func_code)][
                        ,.(IP_SRC_MOD_FUNC, ip.src,
                           mbtcp.modbus.func_code)]
@@ -84,13 +84,13 @@ txt5 <- sprintf('"IP_SRC_MODBUS_FUNC" : [\n%s\n]',
 
 #############################################################################################################
 
-reqs <- sewModbusDT[mbtcp.modbus.reference_num != '']
-resp <- sewModbusDT[is.na(mbtcp.modbus.reference_num)]
+reqs <- normalModbusDT[mbtcp.modbus.reference_num != '']
+resp <- normalModbusDT[is.na(mbtcp.modbus.reference_num)]
 
 #############################################################################################################
 
 # import merged transactions
-mergedfile <- "~/scada/data/sew.imp"
+mergedfile <- "~/scada/data/normal.imp"
 
 mergedSewDT <- as.data.table(
   read.csv(mergedfile, header=TRUE,
@@ -128,7 +128,7 @@ rm(txt1, txt2, txt3, txt4, txt5, txt6, srcs, dst, du, smac, sfunc, sfuncRef, whi
 avgPkt <- mergedSewDT[,.(frequency=.N),by=frame.second][,mean(frequency)]
 
 ### Frequency per second, per source/dest ip and function code
-srcFuncFreq <- sewModbusDT[,.(frequency=.N),
+srcFuncFreq <- normalModbusDT[,.(frequency=.N),
                            by =.(ip.src, ip.dst, mbtcp.modbus.func_code,
                                  frame.second)][
                                    order(ip.src, ip.dst, mbtcp.modbus.func_code,
@@ -185,4 +185,4 @@ stats <- sprintf('{\n%s\n}',
 )
 write(stats, file="~/scada/r/stats.db")
 rm(txt1, txt2, txt3,srcFuncFreq, srcFuncRefFreq, avgPkt, stats)
-rm(modbusStats, datafile, mergedfile, sewModbusDT, mergedSewDT)
+rm(modbusStats, datafile, mergedfile, normalModbusDT, mergedSewDT)
